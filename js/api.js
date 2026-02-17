@@ -101,6 +101,11 @@ function searchPages(query, onSuccess) {
   apiRequest("search", {q: query}, onSuccess);
 }
 
+// Get all pages that have a specific tag
+function getPagesByTag(tag, onSuccess) {
+  apiRequest("tagpages", {tag: tag}, onSuccess);
+}
+
 // Build the complete graph from server
 function getFullGraph(onSuccess, namespace) {
   var params = {};

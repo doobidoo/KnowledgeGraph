@@ -35,15 +35,9 @@ function getTagColor() {
   return "#4CAF50";
 }
 
-// Namespace nodes: orange
-function getNamespaceColor() {
-  return "#FF9800";
-}
-
 // Get color based on node type and level
 function getColor(level, type) {
   if (type === "tag") return getTagColor();
-  if (type === "namespace") return getNamespaceColor();
   return getPageColor(level);
 }
 
@@ -62,7 +56,6 @@ function getEdgeColor(level) {
 
 function getNodeShape(type) {
   if (type === "tag") return "diamond";
-  if (type === "namespace") return "triangle";
   return "dot";
 }
 

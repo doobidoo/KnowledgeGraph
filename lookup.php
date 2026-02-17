@@ -167,6 +167,24 @@ try {
             echo json_encode($namespaces);
             break;
 
+        // Get pages by tag
+        case 'tagpages':
+            $tag = $_GET['tag'] ?? '';
+            if (empty($tag)) {
+                echo json_encode(['error' => 'Missing tag parameter']);
+                break;
+            }
+            $cacheKey = "tagpages:$tag";
+            $cached = getCache($cacheKey, $cacheTtl);
+            if ($cached !== null) {
+                echo json_encode($cached);
+                break;
+            }
+            $result = $api->getPagesByTag($tag);
+            setCache($cacheKey, $result);
+            echo json_encode($result);
+            break;
+
         // Search pages
         case 'search':
             $query = $_GET['q'] ?? '';

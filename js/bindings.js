@@ -23,8 +23,8 @@ function openPageEvent(params) {
     var node = nodes.get(nodeId);
 
     if (node.nodeType === "tag") {
-      // Open DokuWiki search for this tag
-      var url = wikiBaseUrl + "/doku.php?do=search&id=" + encodeURIComponent(node.tagName);
+      // Open DokuWiki tag page
+      var url = wikiBaseUrl + "/doku.php/" + encodeURIComponent(node.tagName) + "?do=showtag&tag=" + encodeURIComponent(node.tagName);
       window.open(url, '_blank');
     } else {
       // Open DokuWiki page

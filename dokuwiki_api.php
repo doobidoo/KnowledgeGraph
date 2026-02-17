@@ -248,6 +248,22 @@ class DokuWikiAPI {
     }
 
     /**
+     * Get all pages that have a specific tag.
+     * Scans all pages' tags since XML-RPC has no tag-specific method.
+     */
+    public function getPagesByTag($tag) {
+        $allPages = $this->getAllPages();
+        $result = [];
+        foreach ($allPages as $page) {
+            $tags = $this->getPageTags($page['id']);
+            if (in_array($tag, $tags)) {
+                $result[] = ['id' => $page['id']];
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Search for pages containing a query string.
      */
     public function searchPages($query) {

@@ -38,8 +38,7 @@ var options = {
   },
   groups: {
     page: { shape: 'dot', color: { background: '#03A9F4', border: '#0288D1' } },
-    tag: { shape: 'diamond', color: { background: '#4CAF50', border: '#388E3C' } },
-    namespace: { shape: 'triangle', color: { background: '#FF9800', border: '#F57C00' } }
+    tag: { shape: 'diamond', color: { background: '#4CAF50', border: '#388E3C' } }
   }
 };
 

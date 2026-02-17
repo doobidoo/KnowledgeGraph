@@ -92,8 +92,8 @@ function expandTagNode(tagNodeId) {
   var level = node.level + 1;
   var nodeSpawn = getSpawnPosition(tagNodeId);
 
-  // Search for pages containing this tag
-  searchPages(node.tagName, function(results) {
+  // Find pages that have this tag
+  getPagesByTag(node.tagName, function(results) {
     if (!results || results.length === 0) return;
     var subnodes = [];
     var newedges = [];
