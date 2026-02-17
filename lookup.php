@@ -185,20 +185,16 @@ try {
             }
 
             // 2. No index — scan per-page tag caches + fetch uncached
-            $ns = $config['base_namespace'];
-            $pagesKey = "allpages:$ns";
-            $pages = getCache($pagesKey, $cacheTtl);
+            // Use ALL pages (no max_pages limit) for complete tag coverage
+            $tagPagesKey = "allpages_full";
+            $pages = getCache($tagPagesKey, $cacheTtl);
             if ($pages === null) {
                 $allPages = $api->getAllPages();
                 $pages = [];
-                $limit = $config['max_pages'] ?? 500;
-                $count = 0;
                 foreach ($allPages as $p) {
-                    if (!empty($ns) && strpos($p['id'], $ns . ':') !== 0 && $p['id'] !== $ns) continue;
                     $pages[] = ['id' => $p['id']];
-                    if (++$count >= $limit) break;
                 }
-                setCache($pagesKey, $pages);
+                setCache($tagPagesKey, $pages);
             }
 
             $result = [];
