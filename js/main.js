@@ -38,7 +38,8 @@ var options = {
   },
   groups: {
     page: { shape: 'dot', color: { background: '#03A9F4', border: '#0288D1' } },
-    tag: { shape: 'diamond', color: { background: '#4CAF50', border: '#388E3C' } }
+    tag: { shape: 'diamond', color: { background: '#4CAF50', border: '#388E3C' } },
+    start: { shape: 'square', color: { background: '#E53935', border: '#C62828' } }
   }
 };
 
@@ -64,14 +65,15 @@ function resetNetwork(pageId) {
   document.getElementById("submit").innerHTML = '<i class="icon ion-refresh"> </i>';
 
   getPageName(pageId, function(title) {
+    var pageType = isStartPage(pageId) ? "start" : "page";
     nodes = new vis.DataSet([{
       id: nodeId,
       label: wordwrap(title, 20),
       value: 2,
       level: 0,
-      color: getColor(0, "page"),
-      shape: getNodeShape("page"),
-      nodeType: "page",
+      color: getColor(0, pageType),
+      shape: getNodeShape(pageType),
+      nodeType: pageType,
       pageId: pageId,
       x: 0, y: 0,
       parent: nodeId
@@ -83,8 +85,8 @@ function resetNetwork(pageId) {
     // Also load tags for the start node
     loadTagsForNode(pageId, nodeId, 0);
 
-    // Auto-expand: load links for the start node immediately
-    expandNode(nodeId);
+    // Auto-expand: load links + one level of children
+    expandNode(nodeId, 1);
   });
 }
 
@@ -100,22 +102,23 @@ function addStart(pageId, index) {
   startpages.push(nodeId);
 
   getPageName(pageId, function(title) {
+    var pageType = isStartPage(pageId) ? "start" : "page";
     nodes.add([{
       id: nodeId,
       label: wordwrap(title, 20),
       value: 2,
       level: 0,
-      color: getColor(0, "page"),
-      shape: getNodeShape("page"),
-      nodeType: "page",
+      color: getColor(0, pageType),
+      shape: getNodeShape(pageType),
+      nodeType: pageType,
       pageId: pageId,
       x: 0, y: 0,
       parent: nodeId
     }]);
     loadTagsForNode(pageId, nodeId, 0);
 
-    // Auto-expand: load links immediately
-    expandNode(nodeId);
+    // Auto-expand: load links + one level of children
+    expandNode(nodeId, 1);
   });
 }
 

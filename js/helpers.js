@@ -35,9 +35,15 @@ function getTagColor() {
   return "#4CAF50";
 }
 
+// Namespace start pages: red
+function getStartColor() {
+  return "#E53935";
+}
+
 // Get color based on node type and level
 function getColor(level, type) {
   if (type === "tag") return getTagColor();
+  if (type === "start") return getStartColor();
   return getPageColor(level);
 }
 
@@ -56,7 +62,15 @@ function getEdgeColor(level) {
 
 function getNodeShape(type) {
   if (type === "tag") return "diamond";
+  if (type === "start") return "square";
   return "dot";
+}
+
+// Check if a page ID is a namespace start page
+function isStartPage(pageId) {
+  if (!pageId) return false;
+  var parts = pageId.split(":");
+  return parts[parts.length - 1] === "start";
 }
 
 // -- TEXT FUNCTIONS -- //
@@ -115,11 +129,10 @@ function sign(x) {
 // -- NETWORK SHORTCUTS -- //
 
 function colorNodes(ns, color) {
-  var colorFunc = color ? getYellowColor : function(level){ return getPageColor(level); };
   for (var i = 0; i < ns.length; i++) {
     var nodeType = ns[i].nodeType || "page";
     if (color) {
-      ns[i].color = colorFunc(ns[i].level);
+      ns[i].color = getYellowColor(ns[i].level);
     } else {
       ns[i].color = getColor(ns[i].level, nodeType);
     }

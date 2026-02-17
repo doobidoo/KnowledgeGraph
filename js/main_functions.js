@@ -20,14 +20,15 @@ function expandNodeCallback(parentNodeId, linkedPageIds) {
 
     // Add linked page as node if not already present
     if (nodes.getIds().indexOf(linkedNodeId) === -1) {
+      var pageType = isStartPage(linkedPageId) ? "start" : "page";
       subnodes.push({
         id: linkedNodeId,
         label: wordwrap(getPageNameFromId(linkedPageId), 15),
         value: 1,
         level: level,
-        color: getColor(level, "page"),
-        shape: getNodeShape("page"),
-        nodeType: "page",
+        color: getColor(level, pageType),
+        shape: getNodeShape(pageType),
+        nodeType: pageType,
         pageId: linkedPageId,
         parent: parentNodeId,
         x: nodeSpawn[0],
@@ -62,9 +63,11 @@ function expandNodeCallback(parentNodeId, linkedPageIds) {
 }
 
 // Expand a page node: load its internal links from DokuWiki
-function expandNode(nodeId) {
+// autoDepth: how many additional levels to auto-expand (0 = none)
+function expandNode(nodeId, autoDepth) {
   var node = nodes.get(nodeId);
   if (!node) return;
+  if (typeof autoDepth === 'undefined') autoDepth = 0;
 
   // Tag nodes: clicking expands to show all pages with this tag
   if (node.nodeType === "tag") {
@@ -80,6 +83,12 @@ function expandNode(nodeId) {
     for (var i = 0; i < links.length; i++) {
       var linkedNodeId = getNeutralId(links[i]);
       loadTagsForNode(links[i], linkedNodeId, node.level + 1);
+    }
+    // Auto-expand children if depth remaining
+    if (autoDepth > 0) {
+      for (var j = 0; j < links.length; j++) {
+        expandNode(getNeutralId(links[j]), autoDepth - 1);
+      }
     }
   });
 }
@@ -104,14 +113,15 @@ function expandTagNode(tagNodeId) {
       var linkedNodeId = getNeutralId(pageId);
 
       if (nodes.getIds().indexOf(linkedNodeId) === -1) {
+        var pageType = isStartPage(pageId) ? "start" : "page";
         subnodes.push({
           id: linkedNodeId,
           label: wordwrap(getPageNameFromId(pageId), 15),
           value: 1,
           level: level,
-          color: getColor(level, "page"),
-          shape: getNodeShape("page"),
-          nodeType: "page",
+          color: getColor(level, pageType),
+          shape: getNodeShape(pageType),
+          nodeType: pageType,
           pageId: pageId,
           parent: tagNodeId,
           x: nodeSpawn[0],
