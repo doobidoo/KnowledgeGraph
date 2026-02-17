@@ -82,6 +82,9 @@ function resetNetwork(pageId) {
 
     // Also load tags for the start node
     loadTagsForNode(pageId, nodeId, 0);
+
+    // Auto-expand: load links for the start node immediately
+    expandNode(nodeId);
   });
 }
 
@@ -110,6 +113,9 @@ function addStart(pageId, index) {
       parent: nodeId
     }]);
     loadTagsForNode(pageId, nodeId, 0);
+
+    // Auto-expand: load links immediately
+    expandNode(nodeId);
   });
 }
 
@@ -135,6 +141,14 @@ function loadTagsForNode(pageId, nodeId, level) {
           tagName: tags[i],
           parent: nodeId
         }]);
+        // Fetch tag count asynchronously
+        (function(tid, tname) {
+          getPagesByTag(tname, function(pages) {
+            if (pages && pages.length > 0) {
+              nodes.update([{ id: tid, label: "#" + tname + " (" + pages.length + ")" }]);
+            }
+          });
+        })(tagNeutralId, tags[i]);
       }
 
       // Add edge from page to tag

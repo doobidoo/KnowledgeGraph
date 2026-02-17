@@ -48,7 +48,6 @@
     }
     #pageinfo .badge-page { background: #03A9F4; }
     #pageinfo .badge-tag { background: #4CAF50; }
-    #pageinfo .badge-namespace { background: #FF9800; }
     #pageinfo h4 { margin: 4px 0 6px; font-size: 15px; }
     #pageinfo .meta { color: #666; font-size: 12px; }
 
@@ -88,13 +87,13 @@
       margin: 1.5px;
       margin-right: 9.5px;
     }
-    #legend .legend-triangle {
-      width: 0;
-      height: 0;
-      border-left: 7px solid transparent;
-      border-right: 7px solid transparent;
-      border-bottom: 14px solid #FF9800;
-      background: none;
+    #legend .legend-version {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid #ddd;
+      color: #aaa;
+      font-size: 10px;
+      text-align: right;
     }
 
     /* Welcome info */
@@ -144,10 +143,7 @@
       <div class="legend-icon legend-diamond"></div>
       <span>Tag</span>
     </div>
-    <div class="legend-item">
-      <div class="legend-icon legend-triangle"></div>
-      <span>Namespace</span>
-    </div>
+    <div class="legend-version">v1.1.0</div>
   </div>
 
   <!-- Network container -->
