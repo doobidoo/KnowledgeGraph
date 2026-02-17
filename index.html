@@ -26,18 +26,21 @@
       position: fixed;
       bottom: 16px;
       left: 16px;
-      background: rgba(255,255,255,0.95);
-      border-radius: 8px;
-      padding: 12px 16px;
-      max-width: 320px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      background: rgba(255,255,255,0.97);
+      border-radius: 10px;
+      padding: 14px 18px;
+      max-width: 380px;
+      max-height: 50vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 13px;
       line-height: 1.5;
       display: none;
       z-index: 10;
     }
-    #pageinfo .node-type-badge {
+    #pageinfo .info-header { margin-bottom: 6px; }
+    #pageinfo .info-type {
       display: inline-block;
       padding: 2px 8px;
       border-radius: 10px;
@@ -45,12 +48,70 @@
       font-weight: 600;
       text-transform: uppercase;
       color: #fff;
-      margin-bottom: 6px;
+      vertical-align: middle;
     }
-    #pageinfo .badge-page { background: #03A9F4; }
-    #pageinfo .badge-tag { background: #4CAF50; }
-    #pageinfo h4 { margin: 4px 0 6px; font-size: 15px; }
-    #pageinfo .meta { color: #666; font-size: 12px; }
+    #pageinfo .page-type { background: #03A9F4; }
+    #pageinfo .tag-type { background: #4CAF50; }
+    #pageinfo .start-type { background: #E53935; }
+    #pageinfo .info-header strong {
+      font-size: 15px;
+      vertical-align: middle;
+      margin-left: 4px;
+    }
+    #pageinfo .info-ns {
+      color: #888;
+      font-size: 11px;
+      margin: 2px 0;
+    }
+    #pageinfo .info-id {
+      color: #aaa;
+      font-size: 11px;
+      font-family: monospace;
+      margin-bottom: 8px;
+    }
+    #pageinfo .info-hint {
+      color: #999;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    #pageinfo .info-preview {
+      margin: 8px 0;
+      padding: 8px 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border-left: 3px solid #03A9F4;
+    }
+    #pageinfo .info-excerpt {
+      color: #444;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-line;
+      word-break: break-word;
+    }
+    #pageinfo .info-empty {
+      color: #999;
+      font-style: italic;
+    }
+    #pageinfo .info-loading {
+      color: #999;
+      font-size: 12px;
+      font-style: italic;
+    }
+    #pageinfo .info-actions {
+      margin-top: 8px;
+      text-align: right;
+    }
+    #pageinfo .info-link {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #03A9F4;
+      color: #fff;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    #pageinfo .info-link:hover { background: #0288D1; }
 
     /* Legend (bottom-right) */
     #legend {
@@ -236,7 +297,7 @@
       <div class="legend-icon legend-square"></div>
       <span>Namespace</span>
     </div>
-    <div class="legend-version">v1.2.0</div>
+    <div class="legend-version">v1.3.0</div>
   </div>
 
   <!-- Help overlay -->
@@ -264,7 +325,7 @@
       </div>
 
       <h3>Interactions</h3>
-      <p><strong>Click</strong> a node to expand it and reveal its linked pages and tags.</p>
+      <p><strong>Click</strong> a node to expand it, reveal its linked pages and tags, and see a content preview.</p>
       <p><strong>Double-click</strong> a page node to open it in the wiki. Double-click a tag to see all pages with that tag in the wiki.</p>
       <p><strong>Hover</strong> over a node to see its details and highlight the path back to the starting page.</p>
       <p><strong>Scroll</strong> to zoom in and out. <strong>Drag</strong> the background to pan.</p>

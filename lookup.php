@@ -225,6 +225,24 @@ try {
             echo json_encode($result);
             break;
 
+        // Get a content preview / excerpt for a page
+        case 'preview':
+            if (empty($page)) {
+                echo json_encode(['error' => 'Missing page parameter']);
+                break;
+            }
+            $cacheKey = "preview:$page";
+            $cached = getCache($cacheKey, $cacheTtl);
+            if ($cached !== null) {
+                echo json_encode($cached);
+                break;
+            }
+            $excerpt = $api->getPageExcerpt($page, 300);
+            $result = ['id' => $page, 'excerpt' => $excerpt];
+            setCache($cacheKey, $result);
+            echo json_encode($result);
+            break;
+
         // Search pages
         case 'search':
             $query = $_GET['q'] ?? '';

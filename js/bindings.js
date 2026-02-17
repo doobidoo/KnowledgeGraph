@@ -1,9 +1,20 @@
 // DokuWiki Knowledge Graph - Event Bindings
 
-// Expand a node on click
+// Track whether the info panel is pinned (clicked) vs just hovered
+var infoPinned = false;
+
+// Expand a node on click and show preview
 function expandEvent(params) {
   if (params.nodes.length) {
-    expandNode(params.nodes[0]);
+    var nodeId = params.nodes[0];
+    expandNode(nodeId);
+    showNodePreview(nodeId);
+    infoPinned = true;
+  } else {
+    // Clicked on empty canvas — dismiss pinned panel
+    infoPinned = false;
+    var infoEl = document.getElementById('pageinfo');
+    if (infoEl) infoEl.style.display = 'none';
   }
 }
 
@@ -11,7 +22,12 @@ function expandEvent(params) {
 function mobileTraceEvent(params) {
   if (params.nodes.length) {
     traceBack(params.nodes[0]);
+    showNodePreview(params.nodes[0]);
+    infoPinned = true;
   } else {
+    infoPinned = false;
+    var infoEl = document.getElementById('pageinfo');
+    if (infoEl) infoEl.style.display = 'none';
     resetProperties();
   }
 }
@@ -35,8 +51,32 @@ function openPageEvent(params) {
   }
 }
 
-// Show page info on hover
+// Build the info panel HTML for a node (without preview)
+function buildNodeInfoHtml(node, nodeId) {
+  var html = '';
+  if (node.nodeType === "tag") {
+    html = '<div class="info-header">' +
+      '<span class="info-type tag-type">Tag</span> ' +
+      '<strong>#' + (node.tagName || '') + '</strong>' +
+      '</div>' +
+      '<div class="info-hint">Click to expand, double-click to search in wiki</div>';
+  } else {
+    var ns = node.pageId ? getNamespaceFromId(node.pageId) : '';
+    var typeLabel = node.nodeType === "start" ? "Namespace" : "Page";
+    var typeClass = node.nodeType === "start" ? "start-type" : "page-type";
+    html = '<div class="info-header">' +
+      '<span class="info-type ' + typeClass + '">' + typeLabel + '</span> ' +
+      '<strong>' + unwrap(node.label) + '</strong>' +
+      '</div>' +
+      (ns ? '<div class="info-ns">' + ns + '</div>' : '') +
+      '<div class="info-id">' + (node.pageId || nodeId) + '</div>';
+  }
+  return html;
+}
+
+// Show page info on hover (lightweight, no preview)
 function showPageInfoEvent(nodeId) {
+  if (infoPinned) return; // Don't override pinned preview
   if (!nodeId) return;
   var node = nodes.get(nodeId);
   if (!node) return;
@@ -44,24 +84,58 @@ function showPageInfoEvent(nodeId) {
   var infoEl = document.getElementById('pageinfo');
   if (!infoEl) return;
 
+  infoEl.innerHTML = buildNodeInfoHtml(node, nodeId) +
+    '<div class="info-hint">Click to expand, double-click to open in wiki</div>';
+  infoEl.style.display = 'block';
+}
+
+// Show full node preview with content excerpt (on click)
+function showNodePreview(nodeId) {
+  if (!nodeId) return;
+  var node = nodes.get(nodeId);
+  if (!node) return;
+
+  var infoEl = document.getElementById('pageinfo');
+  if (!infoEl) return;
+
+  // Show header immediately
+  var wikiUrl = '';
   if (node.nodeType === "tag") {
-    infoEl.innerHTML = '<div class="info-header">' +
-      '<span class="info-type tag-type">Tag</span> ' +
-      '<strong>#' + (node.tagName || '') + '</strong>' +
-      '</div>' +
-      '<div class="info-hint">Click to expand, double-click to search in wiki</div>';
+    wikiUrl = wikiBaseUrl + "/doku.php/" + encodeURIComponent(node.tagName) + "?do=showtag&tag=" + encodeURIComponent(node.tagName);
   } else {
-    var ns = node.pageId ? getNamespaceFromId(node.pageId) : '';
-    infoEl.innerHTML = '<div class="info-header">' +
-      '<span class="info-type page-type">Page</span> ' +
-      '<strong>' + unwrap(node.label) + '</strong>' +
-      '</div>' +
-      (ns ? '<div class="info-ns">Namespace: ' + ns + '</div>' : '') +
-      '<div class="info-id">' + (node.pageId || nodeId) + '</div>' +
-      '<div class="info-hint">Click to expand, double-click to open in wiki</div>';
+    wikiUrl = getWikiPageUrl(node.pageId || nodeId);
   }
 
+  infoEl.innerHTML = buildNodeInfoHtml(node, nodeId) +
+    '<div class="info-preview"><span class="info-loading">Loading preview...</span></div>' +
+    '<div class="info-actions"><a href="' + wikiUrl + '" target="_blank" class="info-link">Open in Wiki</a></div>';
   infoEl.style.display = 'block';
+
+  // Fetch content preview for page nodes
+  if (node.nodeType !== "tag") {
+    var pageId = node.pageId || nodeId;
+    getPagePreview(pageId, function(excerpt) {
+      var previewEl = infoEl.querySelector('.info-preview');
+      if (!previewEl) return;
+      if (excerpt) {
+        previewEl.innerHTML = '<div class="info-excerpt">' + escapeHtml(excerpt) + '</div>';
+      } else {
+        previewEl.innerHTML = '<div class="info-excerpt info-empty">No content available</div>';
+      }
+    });
+  } else {
+    var previewEl = infoEl.querySelector('.info-preview');
+    if (previewEl) {
+      previewEl.innerHTML = '<div class="info-excerpt info-empty">Tag node — click to see tagged pages</div>';
+    }
+  }
+}
+
+// Escape HTML entities for safe display
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(text));
+  return div.innerHTML;
 }
 
 // Detect touch devices
@@ -79,8 +153,10 @@ function bindNetwork() {
       traceBack(params.node);
     });
     network.on("blurNode", function() {
-      var infoEl = document.getElementById('pageinfo');
-      if (infoEl) infoEl.style.display = 'none';
+      if (!infoPinned) {
+        var infoEl = document.getElementById('pageinfo');
+        if (infoEl) infoEl.style.display = 'none';
+      }
       resetProperties();
     });
   }

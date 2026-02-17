@@ -273,6 +273,66 @@ class DokuWikiAPI {
     }
 
     /**
+     * Get a clean text excerpt from a page's wiki content.
+     * Strips DokuWiki markup and returns the first $length characters.
+     */
+    public function getPageExcerpt($pageId, $length = 300) {
+        $this->login();
+        $content = $this->call('wiki.getPage', [$pageId]);
+
+        if (empty($content)) {
+            return '';
+        }
+
+        return $this->stripMarkup($content, $length);
+    }
+
+    /**
+     * Strip DokuWiki markup to produce clean text.
+     */
+    private function stripMarkup($content, $length = 300) {
+        // Remove code/file blocks entirely
+        $text = preg_replace('/<(code|file)[^>]*>.*?<\/\1>/s', '', $content);
+        // Remove WRAP tags
+        $text = preg_replace('/<\/?WRAP[^>]*>/', '', $text);
+        // Remove HTML tags
+        $text = preg_replace('/<[^>]+>/', '', $text);
+        // Remove tag plugin syntax
+        $text = preg_replace('/\{\{tag>[^}]+\}\}/', '', $text);
+        // Remove other plugin syntax {{...}}
+        $text = preg_replace('/\{\{[^}]+\}\}/', '', $text);
+        // Remove heading markup (====== Title ======)
+        $text = preg_replace('/^=+\s*(.*?)\s*=+$/m', '$1', $text);
+        // Remove bold/italic markup
+        $text = str_replace(['**', '//'], '', $text);
+        // Remove links [[target|label]] -> label, [[target]] -> target
+        $text = preg_replace('/\[\[([^|\]]+)\|([^\]]+)\]\]/', '$2', $text);
+        $text = preg_replace('/\[\[([^\]]+)\]\]/', '$1', $text);
+        // Remove literal escaping %%...%%
+        $text = preg_replace('/%%(.+?)%%/', '$1', $text);
+        // Remove list markers
+        $text = preg_replace('/^[\s]*[\*\-]\s*/m', '', $text);
+        // Remove table markup
+        $text = preg_replace('/[\^|]/', ' ', $text);
+        // Collapse whitespace
+        $text = preg_replace('/[ \t]+/', ' ', $text);
+        $text = preg_replace('/\n{3,}/', "\n\n", $text);
+        $text = trim($text);
+
+        // Truncate at word boundary
+        if (mb_strlen($text) > $length) {
+            $text = mb_substr($text, 0, $length);
+            $lastSpace = mb_strrpos($text, ' ');
+            if ($lastSpace > $length * 0.7) {
+                $text = mb_substr($text, 0, $lastSpace);
+            }
+            $text .= '...';
+        }
+
+        return $text;
+    }
+
+    /**
      * Search for pages containing a query string.
      */
     public function searchPages($query) {

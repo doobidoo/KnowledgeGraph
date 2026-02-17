@@ -101,6 +101,13 @@ function searchPages(query, onSuccess) {
   apiRequest("search", {q: query}, onSuccess);
 }
 
+// Get a content preview / excerpt for a page
+function getPagePreview(pageId, onSuccess) {
+  apiRequest("preview", {page: pageId}, function(data) {
+    onSuccess(data.excerpt || '');
+  });
+}
+
 // Get all pages that have a specific tag
 function getPagesByTag(tag, onSuccess) {
   apiRequest("tagpages", {tag: tag}, onSuccess);
