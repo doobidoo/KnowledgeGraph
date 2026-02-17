@@ -210,8 +210,8 @@ try {
                 }
             }
 
-            // Fetch tags for uncached pages (limit to avoid timeout)
-            $fetchLimit = min(count($uncached), 50);
+            // Fetch tags for a few uncached pages (progressive build)
+            $fetchLimit = min(count($uncached), 5);
             for ($i = 0; $i < $fetchLimit; $i++) {
                 $pageTags = $api->getPageTags($uncached[$i]);
                 setCache("tags:" . $uncached[$i], $pageTags);
