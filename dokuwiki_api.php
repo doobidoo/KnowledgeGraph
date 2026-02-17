@@ -253,14 +253,15 @@ class DokuWikiAPI {
      */
     public function getPagesByTag($tag) {
         $this->login();
-        $allPages = $this->call('wiki.getAllPages');
+        // Search for pages containing the tag syntax to narrow candidates
+        $candidates = $this->call('dokuwiki.search', [$tag]);
         $result = [];
-        foreach ($allPages as $page) {
-            $content = $this->call('wiki.getPage', [$page['id']]);
+        foreach ($candidates as $candidate) {
+            $content = $this->call('wiki.getPage', [$candidate['id']]);
             if (!empty($content)) {
                 $tags = $this->extractTags($content);
                 if (in_array($tag, $tags)) {
-                    $result[] = ['id' => $page['id']];
+                    $result[] = ['id' => $candidate['id']];
                 }
             }
         }
