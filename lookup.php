@@ -186,8 +186,10 @@ try {
 
             // 2. No index — scan per-page tag caches + fetch uncached
             // Use ALL pages (no max_pages limit) for complete tag coverage
+            // Use 1h TTL for tag data (tags rarely change)
+            $tagTtl = 3600;
             $tagPagesKey = "allpages_full";
-            $pages = getCache($tagPagesKey, $cacheTtl);
+            $pages = getCache($tagPagesKey, $tagTtl);
             if ($pages === null) {
                 $allPages = $api->getAllPages();
                 $pages = [];
@@ -200,7 +202,7 @@ try {
             $result = [];
             $uncached = [];
             foreach ($pages as $p) {
-                $pageTagsCache = getCache("tags:" . $p['id'], $cacheTtl);
+                $pageTagsCache = getCache("tags:" . $p['id'], $tagTtl);
                 if ($pageTagsCache !== null) {
                     if (in_array($tag, $pageTagsCache)) {
                         $result[] = ['id' => $p['id']];
