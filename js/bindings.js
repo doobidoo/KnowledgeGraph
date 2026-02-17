@@ -116,14 +116,26 @@ function bind() {
     };
   }
 
-  // Help button: open wiki start page
+  // Help button: toggle help overlay
   var helpbutton = document.getElementById("help");
-  if (helpbutton) {
+  var helpOverlay = document.getElementById("help-overlay");
+  if (helpbutton && helpOverlay) {
     helpbutton.onclick = function() {
-      if (wikiBaseUrl) {
-        window.open(wikiBaseUrl + "/doku.php?id=start", '_blank');
+      helpOverlay.classList.toggle("visible");
+    };
+    // Close on backdrop click
+    helpOverlay.onclick = function(e) {
+      if (e.target === helpOverlay) {
+        helpOverlay.classList.remove("visible");
       }
     };
+    // Close button
+    var helpClose = helpOverlay.querySelector(".help-close");
+    if (helpClose) {
+      helpClose.onclick = function() {
+        helpOverlay.classList.remove("visible");
+      };
+    }
   }
 
   // Share button

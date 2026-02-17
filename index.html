@@ -100,6 +100,90 @@
       text-align: right;
     }
 
+    /* Help overlay */
+    #help-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    #help-overlay.visible {
+      display: flex;
+    }
+    #help-content {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px 36px;
+      max-width: 560px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+      position: relative;
+    }
+    #help-content h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+      font-weight: 400;
+      color: #222;
+    }
+    #help-content h3 {
+      margin: 18px 0 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #444;
+    }
+    #help-content p { margin: 6px 0; }
+    #help-content .help-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+      padding: 4px 8px;
+      line-height: 1;
+    }
+    #help-content .help-close:hover { color: #333; }
+    #help-content .help-row {
+      display: flex;
+      align-items: flex-start;
+      margin: 8px 0;
+      gap: 12px;
+    }
+    #help-content .help-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+    }
+    #help-content .hi-dot { background: #03A9F4; border-radius: 50%; }
+    #help-content .hi-diamond { background: #4CAF50; transform: rotate(45deg); width: 14px; height: 14px; margin: 2px; }
+    #help-content .hi-square { background: #E53935; border-radius: 2px; }
+    #help-content .help-kbd {
+      display: inline-block;
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 12px;
+      font-family: monospace;
+    }
+    #help-content hr {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 16px 0;
+    }
+
     /* Welcome info */
     #info {
       text-align: center;
@@ -132,7 +216,7 @@
     <button id="share" type="button" title="Share this graph view">
       <i class="icon ion-android-share"></i>
     </button>
-    <button id="help" type="button" title="Open wiki start page">
+    <button id="help" type="button" title="Help">
       <i class="icon ion-help-circled"></i>
     </button>
   </div>
@@ -151,7 +235,45 @@
       <div class="legend-icon legend-square"></div>
       <span>Namespace</span>
     </div>
-    <div class="legend-version">v1.1.0</div>
+    <div class="legend-version">v1.2.0</div>
+  </div>
+
+  <!-- Help overlay -->
+  <div id="help-overlay">
+    <div id="help-content">
+      <button class="help-close" title="Close">&times;</button>
+      <h2>Knowledge Graph Help</h2>
+      <p>Explore the DokuWiki knowledge base as an interactive graph. Pages, tags, and namespaces are visualized as connected nodes.</p>
+
+      <h3>Getting Started</h3>
+      <p>Type a wiki page name in the search bar (e.g. <strong>start</strong> or <strong>intern:delivery:start</strong>) and press <strong>Go</strong>. Or click the shuffle button for a random page.</p>
+
+      <h3>Node Types</h3>
+      <div class="help-row">
+        <div class="help-icon hi-dot"></div>
+        <div><strong>Page</strong> &mdash; A wiki page. Shows its title and links to other pages.</div>
+      </div>
+      <div class="help-row">
+        <div class="help-icon hi-diamond"></div>
+        <div><strong>Tag</strong> &mdash; A DokuWiki tag. The number in parentheses shows how many pages use this tag across the wiki.</div>
+      </div>
+      <div class="help-row">
+        <div class="help-icon hi-square"></div>
+        <div><strong>Namespace</strong> &mdash; A namespace start page (red square). These represent the root of a wiki section.</div>
+      </div>
+
+      <h3>Interactions</h3>
+      <p><strong>Click</strong> a node to expand it and reveal its linked pages and tags.</p>
+      <p><strong>Double-click</strong> a page node to open it in the wiki. Double-click a tag to see all pages with that tag in the wiki.</p>
+      <p><strong>Hover</strong> over a node to see its details and highlight the path back to the starting page.</p>
+      <p><strong>Scroll</strong> to zoom in and out. <strong>Drag</strong> the background to pan.</p>
+
+      <hr>
+
+      <h3>URL Parameters</h3>
+      <p>Share a specific view: <span class="help-kbd">?page=intern:delivery:start</span></p>
+      <p>Embed mode (hides UI): <span class="help-kbd">?page=start&amp;embed=1</span></p>
+    </div>
   </div>
 
   <!-- Network container -->
