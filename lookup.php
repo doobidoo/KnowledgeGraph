@@ -167,22 +167,63 @@ try {
             echo json_encode($namespaces);
             break;
 
-        // Get pages by tag (uses cached tag index)
+        // Get pages by tag
         case 'tagpages':
             $tag = $_GET['tag'] ?? '';
             if (empty($tag)) {
                 echo json_encode(['error' => 'Missing tag parameter']);
                 break;
             }
-            // Use long-lived tag index (1 hour)
+
+            // 1. Check cached tag index (1h TTL)
             $indexKey = "tagindex";
-            $indexTtl = 3600;
-            $tagIndex = getCache($indexKey, $indexTtl);
-            if ($tagIndex === null) {
-                $tagIndex = $api->buildTagIndex();
-                setCache($indexKey, $tagIndex);
+            $tagIndex = getCache($indexKey, 3600);
+            if ($tagIndex !== null) {
+                $result = isset($tagIndex[$tag]) ? $tagIndex[$tag] : [];
+                echo json_encode($result);
+                break;
             }
-            $result = isset($tagIndex[$tag]) ? $tagIndex[$tag] : [];
+
+            // 2. No index — scan per-page tag caches + fetch uncached
+            $ns = $config['base_namespace'];
+            $pagesKey = "allpages:$ns";
+            $pages = getCache($pagesKey, $cacheTtl);
+            if ($pages === null) {
+                $allPages = $api->getAllPages();
+                $pages = [];
+                $limit = $config['max_pages'] ?? 500;
+                $count = 0;
+                foreach ($allPages as $p) {
+                    if (!empty($ns) && strpos($p['id'], $ns . ':') !== 0 && $p['id'] !== $ns) continue;
+                    $pages[] = ['id' => $p['id']];
+                    if (++$count >= $limit) break;
+                }
+                setCache($pagesKey, $pages);
+            }
+
+            $result = [];
+            $uncached = [];
+            foreach ($pages as $p) {
+                $pageTagsCache = getCache("tags:" . $p['id'], $cacheTtl);
+                if ($pageTagsCache !== null) {
+                    if (in_array($tag, $pageTagsCache)) {
+                        $result[] = ['id' => $p['id']];
+                    }
+                } else {
+                    $uncached[] = $p['id'];
+                }
+            }
+
+            // Fetch tags for uncached pages (limit to avoid timeout)
+            $fetchLimit = min(count($uncached), 50);
+            for ($i = 0; $i < $fetchLimit; $i++) {
+                $pageTags = $api->getPageTags($uncached[$i]);
+                setCache("tags:" . $uncached[$i], $pageTags);
+                if (in_array($tag, $pageTags)) {
+                    $result[] = ['id' => $uncached[$i]];
+                }
+            }
+
             echo json_encode($result);
             break;
 
