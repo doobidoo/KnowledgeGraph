@@ -18,6 +18,6 @@ RUN mkdir -p /var/www/html/cache && chown www-data:www-data /var/www/html/cache
 
 # PHP tuning for large wikis
 RUN echo "memory_limit=256M" > /usr/local/etc/php/conf.d/knowledgegraph.ini \
-    && echo "max_execution_time=120" >> /usr/local/etc/php/conf.d/knowledgegraph.ini
+    && echo "max_execution_time=600" >> /usr/local/etc/php/conf.d/knowledgegraph.ini
 
 EXPOSE 80

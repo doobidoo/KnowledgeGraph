@@ -251,21 +251,25 @@ class DokuWikiAPI {
      * Get all pages that have a specific tag.
      * Scans all pages' tags since XML-RPC has no tag-specific method.
      */
-    public function getPagesByTag($tag) {
+    /**
+     * Build a complete tag index: tag -> [page IDs].
+     * Expensive (fetches all pages), but result is cached.
+     */
+    public function buildTagIndex() {
         $this->login();
-        // Search for pages containing the tag syntax to narrow candidates
-        $candidates = $this->call('dokuwiki.search', [$tag]);
-        $result = [];
-        foreach ($candidates as $candidate) {
-            $content = $this->call('wiki.getPage', [$candidate['id']]);
+        $allPages = $this->call('wiki.getAllPages');
+        $index = [];
+        foreach ($allPages as $page) {
+            $content = $this->call('wiki.getPage', [$page['id']]);
             if (!empty($content)) {
                 $tags = $this->extractTags($content);
-                if (in_array($tag, $tags)) {
-                    $result[] = ['id' => $candidate['id']];
+                foreach ($tags as $tag) {
+                    if (!isset($index[$tag])) $index[$tag] = [];
+                    $index[$tag][] = ['id' => $page['id']];
                 }
             }
         }
-        return $result;
+        return $index;
     }
 
     /**

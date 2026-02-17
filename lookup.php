@@ -167,21 +167,22 @@ try {
             echo json_encode($namespaces);
             break;
 
-        // Get pages by tag
+        // Get pages by tag (uses cached tag index)
         case 'tagpages':
             $tag = $_GET['tag'] ?? '';
             if (empty($tag)) {
                 echo json_encode(['error' => 'Missing tag parameter']);
                 break;
             }
-            $cacheKey = "tagpages:$tag";
-            $cached = getCache($cacheKey, $cacheTtl);
-            if ($cached !== null) {
-                echo json_encode($cached);
-                break;
+            // Use long-lived tag index (1 hour)
+            $indexKey = "tagindex";
+            $indexTtl = 3600;
+            $tagIndex = getCache($indexKey, $indexTtl);
+            if ($tagIndex === null) {
+                $tagIndex = $api->buildTagIndex();
+                setCache($indexKey, $tagIndex);
             }
-            $result = $api->getPagesByTag($tag);
-            setCache($cacheKey, $result);
+            $result = isset($tagIndex[$tag]) ? $tagIndex[$tag] : [];
             echo json_encode($result);
             break;
 
