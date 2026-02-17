@@ -252,12 +252,16 @@ class DokuWikiAPI {
      * Scans all pages' tags since XML-RPC has no tag-specific method.
      */
     public function getPagesByTag($tag) {
-        $allPages = $this->getAllPages();
+        $this->login();
+        $allPages = $this->call('wiki.getAllPages');
         $result = [];
         foreach ($allPages as $page) {
-            $tags = $this->getPageTags($page['id']);
-            if (in_array($tag, $tags)) {
-                $result[] = ['id' => $page['id']];
+            $content = $this->call('wiki.getPage', [$page['id']]);
+            if (!empty($content)) {
+                $tags = $this->extractTags($content);
+                if (in_array($tag, $tags)) {
+                    $result[] = ['id' => $page['id']];
+                }
             }
         }
         return $result;
