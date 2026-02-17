@@ -10,7 +10,7 @@ class DokuWikiAPI {
     private $url;
     private $username;
     private $password;
-    private $cookie = null;
+    private $cookies = [];
     private $debug;
 
     public function __construct($config) {
@@ -31,8 +31,8 @@ class DokuWikiAPI {
             'Content-Length: ' . strlen($request),
         ];
 
-        if ($this->cookie) {
-            $headers[] = 'Cookie: ' . $this->cookie;
+        if (!empty($this->cookies)) {
+            $headers[] = 'Cookie: ' . implode('; ', $this->cookies);
         }
 
         $ch = curl_init($this->url);
@@ -58,9 +58,19 @@ class DokuWikiAPI {
         $responseBody = substr($response, $headerSize);
         curl_close($ch);
 
-        // Extract session cookie
-        if (preg_match('/Set-Cookie:\s*([^\r\n]+)/i', $responseHeaders, $m)) {
-            $this->cookie = $m[1];
+        // Extract all Set-Cookie headers and accumulate cookies
+        if (preg_match_all('/Set-Cookie:\s*([^;\r\n]+)/i', $responseHeaders, $matches)) {
+            foreach ($matches[1] as $cookieNameValue) {
+                $cookieNameValue = trim($cookieNameValue);
+                // Skip deleted cookies
+                if (strpos($cookieNameValue, '=deleted') !== false) {
+                    $name = explode('=', $cookieNameValue)[0];
+                    unset($this->cookies[$name]);
+                    continue;
+                }
+                $name = explode('=', $cookieNameValue)[0];
+                $this->cookies[$name] = $cookieNameValue;
+            }
         }
 
         $result = xmlrpc_decode($responseBody);

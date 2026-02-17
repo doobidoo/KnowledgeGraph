@@ -1,0 +1,22 @@
+services:
+  knowledgegraph:
+    build: .
+    container_name: knowledgegraph
+    restart: unless-stopped
+    ports:
+      - "8085:80"
+    volumes:
+      - ./index.html:/var/www/html/index.html:ro
+      - ./lookup.php:/var/www/html/lookup.php:ro
+      - ./dokuwiki_api.php:/var/www/html/dokuwiki_api.php:ro
+      - ./config.php:/var/www/html/config.php:ro
+      - ./css:/var/www/html/css:ro
+      - ./js:/var/www/html/js:ro
+      - ./cache:/var/www/html/cache
+      - ./.htaccess:/var/www/html/.htaccess:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/index.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
