@@ -1,0 +1,18 @@
+# Cache
+cache/
+
+# Config with credentials
+config.php
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude
+.claude/

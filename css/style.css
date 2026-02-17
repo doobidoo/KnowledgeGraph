@@ -1,0 +1,109 @@
+/* == GLOBAL STYLES == */
+*,
+*::before,
+*::after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  transition: opacity 0.5s ease-out;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+p {
+  font-weight: 300;
+}
+
+p, h1, button {
+  color: #555; /* Slightly less harsh than a black */
+}
+
+.icon {
+  font-size: 20px;
+  color: #333 !important; /* No idea why !important is necessary, but it is. */
+}
+
+code {
+  background-color: #eee;
+  padding: 1px 5px;
+}
+
+button[type=button]:active {
+  background-color: #f0f0f0;
+
+}
+
+
+a {
+  color: #5a5;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* == HELPER CLASSES == */
+
+/* Class for making semitransparent elements with a blur behind them */
+.transparent-blur {
+  background-color: rgba(255, 255, 255, 0.65);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+/* == Class for making divs strech the full screen == */
+.fullscreen {
+  /* Same size as window */
+  width: 100vw;
+  height: 100vh;
+
+  /* No space from top corner */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+
+/* == Parameter Box == */
+.parameter {
+  position: fixed;
+  bottom: 100px;
+  right: 5px;
+  display: inline-block
+
+  z-index: 2;
+  border-radius: 7px;
+  overflow: visible;
+  border: 1px solid #aaa;
+  
+  /*font-size: 0.8em;*/
+  
+}
+
+#parameter > table > tbody > tr{
+
+font-size: 0.8em;
+	
+}
+
+#parameter > table {table-layout: auto;}
+
+.tg  {border-collapse:collapse;border-spacing:0;border-color:#ccc;}
+.tg td{font-size: .83em;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#ccc;color:#333;background-color:#fff;}
+.tg th{font-size: .83em;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#ccc;color:#333;background-color:#f0f0f0;}
+.tg .tg-8xqh{font-weight:bold;background-color:#c0c0c0}
+.tg .tg-4eph{background-color:#f9f9f9;width:auto;min-width:10px}
+.tg .tg-yw4l{vertical-align:top;width:auto;min-width:10px}
+
+#logo{
+    border: 0px;
+    bottom: 5px;
+    overflow: visible;
+    position: fixed;
+    left: 5px;
+    width: 400px;
+    z-index: 2;
+}

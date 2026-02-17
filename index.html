@@ -1,0 +1,188 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta charset="UTF-8">
+  <meta name="description" content="DokuWiki Knowledge Graph - Visualize connections between wiki pages, tags, and namespaces.">
+  <meta name="keywords" content="DokuWiki,Knowledge Graph,Visualization,Wiki,Links,Tags,Namespaces">
+  <meta name="author" content="HKR">
+  <link rel="shortcut icon" href="favicon.ico">
+  <title>DokuWiki Knowledge Graph</title>
+
+  <!-- 3rd party CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.css" type="text/css" />
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" type="text/css" />
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="./css/style.css" type="text/css"/>
+  <link rel="stylesheet" href="./css/bar.css" type="text/css"/>
+  <link rel="stylesheet" href="./css/buttongroup.css" type="text/css"/>
+  <link rel="stylesheet" href="./css/commafield.css" type="text/css"/>
+
+  <style>
+    /* Page info panel (bottom-left) */
+    #pageinfo {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 8px;
+      padding: 12px 16px;
+      max-width: 320px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      display: none;
+      z-index: 10;
+    }
+    #pageinfo .node-type-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    #pageinfo .badge-page { background: #03A9F4; }
+    #pageinfo .badge-tag { background: #4CAF50; }
+    #pageinfo .badge-namespace { background: #FF9800; }
+    #pageinfo h4 { margin: 4px 0 6px; font-size: 15px; }
+    #pageinfo .meta { color: #666; font-size: 12px; }
+
+    /* Legend (bottom-right) */
+    #legend {
+      position: fixed;
+      bottom: 16px;
+      right: 80px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 8px;
+      padding: 10px 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 12px;
+      z-index: 10;
+    }
+    #legend .legend-item {
+      display: flex;
+      align-items: center;
+      margin: 4px 0;
+    }
+    #legend .legend-icon {
+      width: 14px;
+      height: 14px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    #legend .legend-dot {
+      background: #03A9F4;
+      border-radius: 50%;
+    }
+    #legend .legend-diamond {
+      background: #4CAF50;
+      transform: rotate(45deg);
+      width: 11px;
+      height: 11px;
+      margin: 1.5px;
+      margin-right: 9.5px;
+    }
+    #legend .legend-triangle {
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: 14px solid #FF9800;
+      background: none;
+    }
+
+    /* Welcome info */
+    #info {
+      text-align: center;
+      padding-top: 20vh;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #555;
+    }
+    #info h1 { font-weight: 300; font-size: 28px; }
+    #info p { font-size: 15px; color: #888; }
+  </style>
+</head>
+
+<body>
+  <!-- Top bar: search -->
+  <div id="formbox" class="transparent-blur">
+    <button id="random" type="button" title="Random wiki page">
+      <i class="icon ion-shuffle"></i>
+    </button>
+    <button id="submit" type="button" title="Enter a DokuWiki page name, then press Go">
+      Go
+    </button>
+    <div id="input" class="commafield" data-placeholder="wiki page (e.g. start)"> </div>
+  </div>
+
+  <!-- Page info panel -->
+  <div id="pageinfo"></div>
+
+  <!-- Bottom-right buttons -->
+  <div id="buttons" class="button-container transparent-blur">
+    <button id="share" type="button" title="Share this graph view">
+      <i class="icon ion-android-share"></i>
+    </button>
+    <button id="help" type="button" title="Open wiki start page">
+      <i class="icon ion-help-circled"></i>
+    </button>
+  </div>
+
+  <!-- Legend -->
+  <div id="legend">
+    <div class="legend-item">
+      <div class="legend-icon legend-dot"></div>
+      <span>Page</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon legend-diamond"></div>
+      <span>Tag</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon legend-triangle"></div>
+      <span>Namespace</span>
+    </div>
+  </div>
+
+  <!-- Network container -->
+  <div id="container" class="fullscreen">
+    <div id="info">
+      <h1>DokuWiki Knowledge Graph</h1>
+      <p>Visualize connections between wiki pages, tags, and namespaces</p>
+      <p style="font-size:13px; color:#aaa; margin-top:12px;">Enter a page name above or click Random to start exploring</p>
+    </div>
+  </div>
+
+  <!-- 3rd party JS -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis-network.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
+
+  <!-- App JS -->
+  <script type="text/javascript" src="./js/api.js"></script>
+  <script type="text/javascript" src="./js/helpers.js"></script>
+  <script type="text/javascript" src="./js/main_functions.js"></script>
+  <script type="text/javascript" src="./js/main.js"></script>
+  <script type="text/javascript" src="./js/bindings.js"></script>
+  <script type="text/javascript" src="./js/commafield.js"></script>
+
+  <script>
+    window.onload = function () {
+      // Initialize API connection, then bind events
+      initAPI(function(config) {
+        bind();
+        // Try to init from URL params (embed mode, ?page=X, etc.)
+        if (!initFromParams()) {
+          // No URL params: show welcome state
+        }
+      });
+    };
+  </script>
+</body>
+
+</html>
